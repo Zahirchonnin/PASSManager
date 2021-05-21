@@ -154,3 +154,12 @@ class Ui_Form(object):
         self.treeWidget.topLevelItem(0).child(0).child(0).setText(0, _translate("Form", "password"))
         self.treeWidget.setSortingEnabled(__sortingEnabled)
         self.add_account.setText(_translate("Form", "+Add Account"))
+
+if __name__ == '__main__':
+        import sys
+        app = QtWidgets.QApplication(sys.argv)
+        window = Ui_Form()
+        Form = QtWidgets.QWidget()
+        window.setupUi(Form)
+        Form.show()
+        sys.exit(app.exec_())

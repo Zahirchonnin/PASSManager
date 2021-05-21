@@ -15,7 +15,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        Form.resize(722, 394)
+        Form.resize(728, 548)
         self.frame_2 = QtWidgets.QFrame(Form)
         self.frame_2.setGeometry(QtCore.QRect(10, 10, 701, 61))
         self.frame_2.setStyleSheet("background-color: rgb(35, 35, 35);\n"
@@ -83,29 +83,31 @@ class Ui_Form(object):
         self.icon.setWordWrap(True)
         self.icon.setObjectName("icon")
         self.accounts = QtWidgets.QTreeWidget(Form)
-        self.accounts.setGeometry(QtCore.QRect(5, 71, 711, 321))
-        self.accounts.setStyleSheet("""
-        QTreeWidget {
-                background-color: black;
-                font: 75 14pt "MS Shell Dlg 2";
-                }
-        QTreeWidget::item{
-                border: 2px solid white;
-                border-radius:5px;
-                background-color: rgba(255, 255, 255, 200);
-                color: black;
-                padding-left: 10px
-                }
-        QTreeWidget::item:selected{
-                background-color: rgba(175, 175, 175, 100);
-                border: 2px solid red
-                }
-        QTreeWidget::item:!selected{
-                background-color:rgba(0, 0, 0, 10);
-                color: white
-                }""")
-        self.accounts.setObjectName("accounts")
-        self.accounts.setHeaderLabel('Accounts')
+        self.accounts.setGeometry(QtCore.QRect(5, 71, 711, 381))
+        self.accounts.setStyleSheet("QTreeWidget {\n"
+"    background-color: black;\n"
+"    font: 75 14pt \"MS Shell Dlg 2\";\n"
+"    }\n"
+"QTreeWidget::item{\n"
+"    border: 2px solid white;\n"
+"    border-radius:5px;\n"
+"    background-color: rgba(255, 255, 255, 200);\n"
+"    color: black;\n"
+"    padding-left: 10px\n"
+"}\n"
+"\n"
+"QTreeWidget::item:selected{\n"
+"    background-color: rgba(175, 175, 175, 100);\n"
+"    border: 2px solid red\n"
+"}\n"
+"\n"
+"\n"
+"QTreeWidget::item:!selected{\n"
+"    background-color:rgba(0, 0, 0, 10);\n"
+"    color: white\n"
+"}")
+        self.accounts.setObjectName("treeWidget")
+        self.accounts.headerItem().setTextAlignment(0, QtCore.Qt.AlignCenter)
         font = QtGui.QFont()
         font.setFamily("Segoe UI Black")
         font.setPointSize(21)
@@ -116,22 +118,118 @@ class Ui_Form(object):
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         self.accounts.headerItem().setForeground(0, brush)
-        self.add_account = QtWidgets.QPushButton(Form)
-        self.add_account.setGeometry(QtCore.QRect(590, 350, 111, 31))
+        self.options = QtWidgets.QFrame(Form)
+        self.options.setGeometry(QtCore.QRect(10, 450, 711, 88))
+        self.options.setStyleSheet("QFrame {\n"
+"    background-color: black;\n"
+"    border: 2px solid white;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"QPushButton{\n"
+"    background-color: rgba(255, 255, 255, 150);\n"
+"    border: 3px solid white ;\n"
+"    border-radius: 5px\n"
+"}\n"
+"\n"
+"QPushButton::hover{\n"
+"    background-color: rgba(3, 99, 255, 100);\n"
+"    border: 3px dashed rgba(255, 255, 255, 200);\n"
+"    padding-top: 10px\n"
+"    }\n"
+"\n"
+"QToolTip {\n"
+"    background-color: black;\n"
+"    color: white;\n"
+"    border: 2px solid white;\n"
+"    border-radius: 5px\n"
+"}")
+        self.options.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.options.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.options.setObjectName("options")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.options)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.gen_pass = QtWidgets.QPushButton(self.options)
+        self.gen_pass.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT Condensed Extra Bold")
+        font.setPointSize(14)
+        self.gen_pass.setFont(font)
+        self.gen_pass.setStyleSheet("")
+        self.gen_pass.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("graphic/gen_pass.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.gen_pass.setIcon(icon)
+        self.gen_pass.setIconSize(QtCore.QSize(50, 50))
+        self.gen_pass.setObjectName("gen_pass")
+        self.horizontalLayout.addWidget(self.gen_pass)
+        self.remove = QtWidgets.QPushButton(self.options)
+        self.remove.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT Condensed Extra Bold")
+        font.setPointSize(14)
+        self.remove.setFont(font)
+        self.remove.setStyleSheet("")
+        self.remove.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("graphic/remove.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.remove.setIcon(icon1)
+        self.remove.setIconSize(QtCore.QSize(50, 50))
+        self.remove.setObjectName("remove")
+        self.horizontalLayout.addWidget(self.remove)
+        self.rename = QtWidgets.QPushButton(self.options)
+        self.rename.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT Condensed Extra Bold")
+        font.setPointSize(14)
+        self.rename.setFont(font)
+        self.rename.setStyleSheet("")
+        self.rename.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("graphic/rename.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.rename.setIcon(icon2)
+        self.rename.setIconSize(QtCore.QSize(50, 50))
+        self.rename.setObjectName("rename")
+        self.horizontalLayout.addWidget(self.rename)
+        self.add_email = QtWidgets.QPushButton(self.options)
+        self.add_email.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT Condensed Extra Bold")
+        font.setPointSize(14)
+        self.add_email.setFont(font)
+        self.add_email.setStyleSheet("")
+        self.add_email.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("graphic/add_mail.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.add_email.setIcon(icon3)
+        self.add_email.setIconSize(QtCore.QSize(50, 50))
+        self.add_email.setObjectName("add_email")
+        self.horizontalLayout.addWidget(self.add_email)
+        self.add_account = QtWidgets.QPushButton(self.options)
+        self.add_account.setMaximumSize(QtCore.QSize(16777215, 50))
         font = QtGui.QFont()
         font.setFamily("Tw Cen MT Condensed Extra Bold")
         font.setPointSize(14)
         self.add_account.setFont(font)
-        self.add_account.setStyleSheet("QPushButton#add_account{\n"
-"    background-color: white;\n"
-"    color: black;\n"
-"    border-radius: 5px\n"
-"}\n"
-"\n"
-"QPushButton#add_account::hover{\n"
-"    background-color: gray;\n"
-"    }4")
+        self.add_account.setStyleSheet("")
+        self.add_account.setText("")
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap("graphic/add_acount.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.add_account.setIcon(icon4)
+        self.add_account.setIconSize(QtCore.QSize(50, 50))
         self.add_account.setObjectName("add_account")
+        self.horizontalLayout.addWidget(self.add_account)
+
+        self.copy_label = QtWidgets.QLabel(Form)
+        self.copy = QtGui.QPixmap('graphic/copy.png')
+        self.copy_label.setPixmap(self.copy)
+        self.copy_label.resize(100, 100)
+        self.copy_label.setPixmap(
+                self.copy.scaled(
+                    self.copy_label.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                    )
+                )
+        self.copy_label.move(320, 350)
+        self.copy_label.hide()
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -142,8 +240,14 @@ class Ui_Form(object):
         self.minimize_bt.setText(_translate("Form", "_"))
         self.close_bt.setText(_translate("Form", "X"))
         self.label.setText(_translate("Form", "PASSManager"))
-        self.add_account.setText(_translate("Form", "+Add Account"))
-
+        self.accounts.headerItem().setText(0, _translate("Form", "accounts"))
+        self.gen_pass.setToolTip(_translate("Form", "Generate random password."))
+        self.remove.setToolTip(_translate("Form", "Remove selected"))
+        self.rename.setToolTip(_translate("Form", "Change selected"))
+        self.add_email.setToolTip(_translate("Form", "Add email to selected account"))
+        self.add_account.setToolTip(_translate("Form", "Add account group"))
+        self.accounts.setSortingEnabled(False)
+        self.accounts.setSortingEnabled(self.accounts.isSortingEnabled())
 
 if __name__ == "__main__":
     import sys

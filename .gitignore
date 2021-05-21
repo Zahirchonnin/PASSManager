@@ -1,2 +1,5 @@
 .venv/
 *.ui
+*__pycache__/
+*.qt_for_python/
+*.json
