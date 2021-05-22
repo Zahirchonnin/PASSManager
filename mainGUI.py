@@ -11,12 +11,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        Form.resize(728, 548)
-        self.frame_2 = QtWidgets.QFrame(Form)
+class Ui_Form(QtWidgets.QWidget):
+    def setupUi(self):
+        self.setObjectName("Form")
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.resize(728, 548)
+        self.frame_2 = QtWidgets.QFrame(self)
         self.frame_2.setGeometry(QtCore.QRect(10, 10, 701, 61))
         self.frame_2.setStyleSheet("background-color: rgb(35, 35, 35);\n"
 "border: 5px solid black;\n"
@@ -45,6 +45,7 @@ class Ui_Form(object):
 "    }")
         self.minimize_bt.setObjectName("minimize_bt")
         self.close_bt = QtWidgets.QPushButton(self.frame_2)
+        self.close_bt.setShortcut('Ctrl+W')
         self.close_bt.setGeometry(QtCore.QRect(640, 10, 41, 41))
         font = QtGui.QFont()
         font.setFamily("Kristen ITC")
@@ -82,7 +83,7 @@ class Ui_Form(object):
         self.icon.setScaledContents(True)
         self.icon.setWordWrap(True)
         self.icon.setObjectName("icon")
-        self.accounts = QtWidgets.QTreeWidget(Form)
+        self.accounts = QtWidgets.QTreeWidget(self)
         self.accounts.setGeometry(QtCore.QRect(5, 71, 711, 381))
         self.accounts.setStyleSheet("QTreeWidget {\n"
 "    background-color: black;\n"
@@ -118,7 +119,7 @@ class Ui_Form(object):
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         self.accounts.headerItem().setForeground(0, brush)
-        self.options = QtWidgets.QFrame(Form)
+        self.options = QtWidgets.QFrame(self)
         self.options.setGeometry(QtCore.QRect(10, 450, 711, 88))
         self.options.setStyleSheet("QFrame {\n"
 "    background-color: black;\n"
@@ -219,7 +220,7 @@ class Ui_Form(object):
         self.add_account.setObjectName("add_account")
         self.horizontalLayout.addWidget(self.add_account)
 
-        self.copy_label = QtWidgets.QLabel(Form)
+        self.copy_label = QtWidgets.QLabel(self)
         self.copy = QtGui.QPixmap('graphic/copy.png')
         self.copy_label.setPixmap(self.copy)
         self.copy_label.resize(100, 100)
@@ -231,12 +232,15 @@ class Ui_Form(object):
         self.copy_label.move(320, 350)
         self.copy_label.hide()
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self)
+    
+    def closeEvent(self, event):
+            event.ignore()
 
-    def retranslateUi(self, Form):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        self.setWindowTitle(_translate("Form", "Form"))
         self.minimize_bt.setText(_translate("Form", "_"))
         self.close_bt.setText(_translate("Form", "X"))
         self.label.setText(_translate("Form", "PASSManager"))
@@ -252,8 +256,7 @@ class Ui_Form(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
-    Form.show()
+    window = Ui_Form()
+    window.setupUi()
+    window.show()
     sys.exit(app.exec_())

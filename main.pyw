@@ -1,21 +1,27 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from string import ascii_uppercase, ascii_lowercase, digits
+from PyQt5 import QtCore, QtWidgets
+from cryptor import CryptorManager
 import loginGUI, mainGUI, addForm
-from hashlib import sha256
+from hashlib import new, sha256
 from pyperclip import copy
+from random import choice
 from time import sleep
+import json
 import sip
 import os
-import json
-from string import ascii_uppercase, ascii_lowercase, digits
-from random import choice
 
 class Worker(QtCore.QThread):
     def run(self):
         sleep(0.5)
 
+
 class PASSManager(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        if 'data.json' not in os.listdir('./'):
+            with open('data.json', 'w') as f:
+                f.write('{}')
+
         self.Qt = QtCore.Qt
         self.style = """
         QPushButton#addButton{
@@ -45,9 +51,7 @@ class PASSManager(QtWidgets.QWidget):
 
         self.login.submit.clicked.connect(self.checkData)
         self.login.submit_regi.clicked.connect(self.register)
-        self.login.close_bt.clicked.connect(
-            lambda: self.close(self.login_form)
-        )
+        self.login.close_bt.clicked.connect(lambda: self.close(False))
         self.login.minimize_bt.clicked.connect(
             lambda: self.login_form.showMinimized()
         )
@@ -55,16 +59,13 @@ class PASSManager(QtWidgets.QWidget):
         self.login.show_hide.clicked.connect(self.showPassword)
         self.login.show_hide_2.clicked.connect(self.showPassword)
 
-        self.main_form = QtWidgets.QWidget()
         self.main = mainGUI.Ui_Form()
-        self.main.setupUi(self.main_form)
-        self.main_form.setStyleSheet(self.style)
+        self.main.setupUi()
+        self.main.setStyleSheet(self.style)
 
-        self.main.close_bt.clicked.connect(
-            lambda: self.close(self.main_form)
-        )
+        self.main.close_bt.clicked.connect(lambda: self.close(True))
         self.main.minimize_bt.clicked.connect(
-            lambda: self.main_form.showMinimized()
+            lambda: self.main.showMinimized()
         )
 
         self.main.add_account.clicked.connect(self.addAcount)
@@ -94,11 +95,18 @@ class PASSManager(QtWidgets.QWidget):
     
     def checkData(self):
         username = self.login.username.text()
+        self.login.username.clear()
         with open('data.json') as f:
-            data = json.loads(f.read())
-            data = self.load(data)
+            try:
+                data = json.loads(f.read())
+                data = self.load(data)
+            except json.decoder.JSONDecodeError:
+                return self.message.information(self, 'Not found',
+                'There is no account, you should register first',
+                self.message.Ok, self.message.Ok)
         
         pwd = self.login.password.text()
+        self.login.password.clear()
         
         if not pwd or not username:
             self.message.information(self, 'empty fields',
@@ -106,9 +114,10 @@ class PASSManager(QtWidgets.QWidget):
             return
 
         try:
-            self.userDATA = data[username]
-            key = (pwd.encode() + self.userDATA['salt'])[:32]
-            if sha256(key).hexdigest() != self.userDATA['key']:
+            userDATA = data[username]
+            key = (pwd.encode() + userDATA['salt'])[:32]
+
+            if sha256(key).hexdigest() != userDATA['key']:
 
                 self.message.information(
                     self, 'Wrong passowrd!', 
@@ -122,8 +131,13 @@ class PASSManager(QtWidgets.QWidget):
                     "Wellcom to your room %s" % username,
                     self.message.Ok, self.message.Ok
                     )
+                self.encryptManager = CryptorManager(key)
+                self.accounts = userDATA['Accounts']
+                self.accounts = self.encryptManager.decryptor(self.accounts)
+                self.username = username
+                self.loadData(self.accounts)
                 self.login_form.hide()
-                self.main_form.show()
+                self.main.show()
         except KeyError:
             self.message.information(
                 self, 'Not found', 
@@ -133,11 +147,18 @@ class PASSManager(QtWidgets.QWidget):
 
     def register(self):
         with open('data.json') as f:
-            data = self.load(json.loads(f.read()))
-        
+            try:
+                data = self.load(json.loads(f.read()))
+            except json.decoder.JSONDecodeError:
+                data = {}
+
         username = self.login.username_regi.text()
         pwd = self.login.password_regi.text()
         conf_pwd = self.login.pwd_conf_regi.text()
+
+        self.login.username_regi.clear()
+        self.login.password_regi.clear()
+        self.login.pwd_conf_regi.clear()
 
         if username in data:
             self.message.information(self, 'Username used',
@@ -165,8 +186,11 @@ class PASSManager(QtWidgets.QWidget):
                 'successfully singed up, Wellcome',
                 self.message.Ok, self.message.Ok
                 )
+            self.encryptManager = CryptorManager(key)
+            self.accounts = data[username]['Accounts']
+            self.username = username
             self.login_form.hide()
-            self.main_form.show()
+            self.main.show()
 
 
 
@@ -211,6 +235,7 @@ class PASSManager(QtWidgets.QWidget):
     def addAcount(self):
         account_name, ok = QtWidgets.QInputDialog.getText(self, 'account name', 'Enter account name')
         if ok:
+            self.accounts[account_name] = {}
             item = QtWidgets.QTreeWidgetItem(self.main.accounts)
             item.setText(0, account_name)
             item.setData(0, 100, account_name)
@@ -223,7 +248,7 @@ class PASSManager(QtWidgets.QWidget):
             if item.data(0, 100):
                 account_name = item.text(0)
                 self.add.title.setText(f"Add new account to {account_name}")
-                self.main_form.setDisabled(True)
+                self.main.setDisabled(True)
                 self.add_form.show()    
             
             else:
@@ -260,12 +285,13 @@ class PASSManager(QtWidgets.QWidget):
 
         em_item.addChild(pwd_item)
         parent.addChild(em_item)
+        self.accounts[parent.text(0)][email] = pwd
 
         self.back()
     
     def back(self):
         self.add_form.close()
-        self.main_form.setEnabled(True)
+        self.main.setEnabled(True)
 
     def genPass(self, new=False):
 
@@ -286,6 +312,10 @@ class PASSManager(QtWidgets.QWidget):
                     if resp == self.message.Yes:
                         item.setText(0, password)
                         item.setData(0, 3, password)
+
+                        email = item.parent()
+                        account = email.parent().text(0)
+                        self.accounts[account][email.text(0)] = password
                 else:
                     self.message.information(self, 'denied',
                     'This is not password field.', self.message.Ok, self.message.Ok)
@@ -296,14 +326,33 @@ class PASSManager(QtWidgets.QWidget):
     def renameItem(self):
         try:
             item = self.main.accounts.currentItem()
-            if item.data(0, 100):msg = 'account'; i = 100
-            elif item.data(0, 11): msg = 'email'; i = 11
-            else: msg = 'password'; i = 3
+            if item.data(0, 100):
+                msg = 'account'; i = 100
+
+            elif item.data(0, 11):
+                msg = 'email'; i = 11
+                account = item.parent().text(0)
+
+            else:
+                msg = 'password'; i = 3
+                email = item.parent()
+                account = email.parent().text(0)
+                email = email.text(0)
 
             new_name, ok = QtWidgets.QInputDialog.getText(self, 'Edit', f'Enter new {msg}')
             if ok:
+                if msg == 'account':
+                    self.accounts[new_name] = self.accounts.pop(item.text(0))
+                
+                elif msg == 'email':
+                    self.accounts[account][new_name] = self.accounts[account].pop(item.text(0))
+                
+                else:
+                    self.accounts[account][email] = new_name
+
                 item.setData(0, i, new_name)
                 item.setText(0, new_name)
+        
         except AttributeError:
             self.message.information(self, 'Selected!', 
             'You should select item first.', self.message.Ok, self.message.Ok)
@@ -311,8 +360,12 @@ class PASSManager(QtWidgets.QWidget):
     def removeItem(self):
         try:
             item = self.main.accounts.currentItem()
-            if item.data(0, 100):msg = 'account'; i = 100
-            elif item.data(0, 11): msg = 'email'; i = 11
+            if item.data(0, 100):
+                msg = 'account'; i = 100
+
+            elif item.data(0, 11):
+                msg = 'email'; i = 11
+                account = item.parent().text(0)
             else:
                 return self.message.information(self, 'denied',
                 'You can\'t remove only a password.', self.message.Ok, self.message.Ok)
@@ -321,6 +374,12 @@ class PASSManager(QtWidgets.QWidget):
             f'Are you sure you want to remove this {msg}?',
             self.message.Yes | self.message.No, self.message.No)
             if resp == self.message.Yes:
+                if msg == 'account':
+                    del self.accounts[item.text(0)]
+                
+                else:
+                    del self.accounts[account][item.text(0)]
+                
                 sip.delete(item)
 
         except TypeError:
@@ -338,13 +397,43 @@ class PASSManager(QtWidgets.QWidget):
             lambda: self.main.copy_label.hide()
             )
 
-    def close(self, form):
+    def close(self, save):
         answer = self.message.warning(self, 'Quit?', 
         'Are you sure you want to exit?', self.message.Yes | self.message.No,
         self.message.No)
 
         if answer == self.message.Yes:
-            form.close()
+            if save:
+                with open('data.json') as f:
+                    data = json.loads(f.read())
+                    data = self.load(data)
+                    
+                data[self.username]['Accounts'] = self.encryptManager.encryptor(self.accounts)
+                self.save(data, True)
+                self.main.accounts.clear()
+                self.main.hide()
+                self.login_form.show()
+            else:
+                exit()
+    
+    def loadData(self, data):
+        for account, account_info in data.items():
+            ac_item = QtWidgets.QTreeWidgetItem(self.main.accounts)
+            ac_item.setText(0, account)
+            ac_item.setData(0, 100, account)
+            self.main.accounts.addTopLevelItem(ac_item)
+            for email, pwd in account_info.items():
+                em_item = QtWidgets.QTreeWidgetItem()
+                em_item.setText(0, email)
+                em_item.setData(0, 11, email)
+
+                pwd_item = QtWidgets.QTreeWidgetItem()
+                pwd_item.setText(0, pwd)
+                pwd_item.setData(0, 3, pwd)
+
+                em_item.addChild(pwd_item)
+                ac_item.addChild(em_item)
+
 
 if __name__ == '__main__':
     import sys
