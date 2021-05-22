@@ -13,6 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Form(object):
     def setupUi(self, Form):
+        Form.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         Form.setObjectName("Form")
         Form.resize(400, 300)
         self.frame = QtWidgets.QFrame(Form)
